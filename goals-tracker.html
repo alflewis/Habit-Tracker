@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Goals 2026"/>
+<meta name="theme-color" content="#ffffff"/>
+<title>Goals &amp; Progress 2026</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:#f3f4f6;color:#111827;font-family:'Trebuchet MS','Gill Sans',sans-serif;font-size:14px;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+  button{cursor:pointer;font-family:inherit}
+  input,textarea{font-family:inherit}
+  /* header */
+  #app-header{background:#fff;border-bottom:2px solid #e5e7eb;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  #header-left{display:flex;align-items:center;gap:10px}
+  #header-title{font-weight:800;font-size:15px;color:#111827;letter-spacing:.5px}
+  #header-sub{font-size:11px;color:#9ca3af}
+  #header-score{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700}
+  #score-bar-wrap{width:60px;height:5px;background:#e5e7eb;border-radius:99px;overflow:hidden}
+  #score-bar{height:100%;border-radius:99px;transition:width .4s}
+  /* nav */
+  #nav{display:flex;background:#fff;border-bottom:2px solid #e5e7eb;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #nav::-webkit-scrollbar{display:none}
+  .nav-btn{padding:13px 14px;border:none;border-bottom:2px solid transparent;background:none;color:#6b7280;font-size:12px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;white-space:nowrap;transition:color .15s;display:flex;align-items:center;gap:5px}
+  .nav-btn.active{color:#2563eb;border-bottom-color:#2563eb}
+  /* wrap */
+  .wrap{max-width:860px;margin:0 auto;padding:16px 12px}
+  /* card */
+  .card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  /* section heading */
+  .section-h{font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:10px}
+  /* habit row */
+  .habit-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:7px;cursor:pointer;margin-bottom:3px;transition:background .12s,border .12s;border:1px solid #f3f4f6;background:#f9fafb;-webkit-user-select:none;user-select:none}
+  .habit-row.checked{background:#eff6ff;border-color:#bfdbfe}
+  .habit-row:active{opacity:.7}
+  .habit-box{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:2px solid #d1d5db;background:#fff;transition:all .12s}
+  .habit-box.checked{border:none;background:#2563eb}
+  .habit-label{font-size:13.5px;color:#6b7280;transition:all .12s}
+  .habit-label.checked{color:#374151;text-decoration:line-through}
+  /* calendar */
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .cal-day-hdr{text-align:center;font-size:11px;font-weight:700;color:#9ca3af;padding:3px 0;text-transform:uppercase}
+  .cal-day{padding:7px 3px;border-radius:7px;cursor:pointer;text-align:center;border:1px solid transparent;transition:all .12s}
+  .cal-day.today{background:#f0f9ff;border-color:#93c5fd}
+  .cal-day.selected{background:#eff6ff;border-color:#2563eb}
+  .cal-day.future{opacity:.25;cursor:default}
+  .cal-day-num{font-size:12px;color:#374151;margin-bottom:3px}
+  .cal-day.today .cal-day-num{font-weight:700;color:#2563eb}
+  .cal-day-bar{height:4px;border-radius:99px;background:#e5e7eb}
+  /* month nav */
+  .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .month-title{font-weight:700;font-size:17px;color:#111827}
+  /* buttons */
+  .btn{padding:7px 14px;border-radius:7px;border:none;font-weight:600;font-size:12.5px;background:#f3f4f6;color:#374151;display:inline-flex;align-items:center;gap:5px}
+  .btn-primary{background:#2563eb;color:#fff}
+  .btn-danger{background:#fee2e2;color:#dc2626;padding:4px 8px}
+  /* table */
+  table{width:100%;border-collapse:collapse}
+  th{padding:7px 10px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1px;text-transform:uppercase;text-align:left}
+  td{padding:8px 10px;border-bottom:1px solid #f3f4f6;vertical-align:middle}
+  /* inputs */
+  .inp{background:#f9fafb;border:1px solid #d1d5db;border-radius:6px;color:#111827;padding:7px 10px;font-size:13px;outline:none;width:100%}
+  .num-inp{background:#f9fafb;border:1px solid #d1d5db;border-radius:5px;color:#111827;padding:5px 8px;font-size:13px;width:90px;outline:none}
+  /* progress bar */
+  .prog-wrap{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin:4px 0}
+  .prog-bar{height:100%;border-radius:99px;transition:width .4s}
+  /* add form */
+  .add-form{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  /* stat card */
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .stat-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .stat-val{font-size:26px;font-weight:800;color:#2563eb;line-height:1.1}
+  .stat-lbl{font-size:11px;color:#6b7280;margin-top:3px}
+  /* wealth row */
+  .wealth-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f3f4f6}
+  .wealth-lbl{flex:1;color:#374151;font-size:13px}
+  /* hidden panels */
+  .panel{display:none}.panel.active{display:block}
+  /* safe area padding for iPhone */
+  #nav{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+  @media(max-width:600px){
+    .add-form{grid-template-columns:1fr}
+    .stat-grid{grid-template-columns:1fr 1fr}
+    .wealth-grid{grid-template-columns:1fr!important}
+    td,th{padding:6px 6px}
+    .num-inp{width:70px}
+  }
+</style>
+</head>
+<body>
+
+<div id="app-header">
+  <div id="header-left">
+    <span style="font-size:22px">🎯</span>
+    <div>
+      <div id="header-title">Goals &amp; Progress</div>
+      <div id="header-sub">2026 and beyond</div>
+    </div>
+  </div>
+  <div id="header-score">
+    <div id="score-bar-wrap"><div id="score-bar" style="width:0%"></div></div>
+    <span id="score-text" style="color:#d1d5db">0/17</span>
+    <span style="font-size:11px;color:#9ca3af">today</span>
+  </div>
+</div>
+
+<div id="nav">
+  <button class="nav-btn active" data-tab="today">🌅 Today</button>
+  <button class="nav-btn" data-tab="calendar">📅 Calendar</button>
+  <button class="nav-btn" data-tab="health">❤️ Health</button>
+  <button class="nav-btn" data-tab="wealth">💷 Wealth</button>
+  <button class="nav-btn" data-tab="education">📚 Education</button>
+</div>
+
+<div id="today" class="panel active"></div>
+<div id="calendar" class="panel"></div>
+<div id="health" class="panel"></div>
+<div id="wealth" class="panel"></div>
+<div id="education" class="panel"></div>
+
+<script>
+// ── Data ────────────────────────────────────────────────────────────────────
+
+const HABITS = [
+  {id:"comptia",   label:"Studied 1hr for CompTIA A+",                      icon:"📚", cat:"Education"},
+  {id:"cal_track", label:"Tracked calories on MyFitnessPal",                icon:"📊", cat:"Diet"},
+  {id:"cal_under", label:"Under 2,500 cal (2,000 on rest days)",            icon:"🥗", cat:"Diet"},
+  {id:"exercise",  label:"Lunchtime walk or gym (leave at 12:15pm)",        icon:"🏃", cat:"Exercise"},
+  {id:"hair_skin", label:"Hair & skin care routine",                         icon:"✨", cat:"Self Care"},
+  {id:"no_caff",   label:"No caffeine after midday",                         icon:"☕", cat:"Self Care"},
+  {id:"gaming",    label:"Under 2hrs gaming (5× per week goal)",             icon:"🎮", cat:"Self Care"},
+  {id:"dental",    label:"Full dental routine (brush/flosser/floss/scraper)",icon:"🦷", cat:"Self Care"},
+  {id:"tasks",     label:"Set 1–3 tasks for tomorrow (Google Doc)",          icon:"📝", cat:"Productivity"},
+  {id:"gratitude", label:"Wrote 3 things I'm grateful for",                 icon:"🙏", cat:"Mindset"},
+  {id:"bedtime",   label:"Bed 8:45pm / eyemask 9:45pm (11pm Fri & Sat)",   icon:"😴", cat:"Sleep"},
+  {id:"job",       label:"Applied for at least 1 job (weekly)",              icon:"💼", cat:"Career"},
+  {id:"mum",       label:"Spoke to Mum",                                    icon:"📞", cat:"Social"},
+  {id:"dad",       label:"Quality time with Dad",                            icon:"👨", cat:"Social"},
+  {id:"friends",   label:"Spoke to Mason or Craig",                          icon:"👥", cat:"Social"},
+  {id:"laundry",   label:"Did laundry (weekly)",                             icon:"🧺", cat:"Home"},
+  {id:"hoover",    label:"Hoovered front room & bedrooms (fortnightly)",    icon:"🧹", cat:"Home"},
+];
+const CATS = [...new Set(HABITS.map(h=>h.cat))];
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAYS_S = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+const INIT_BOOKS = [
+  {id:1,title:"The Furious Method — Tyson Fury",topic:"Self Improvement",completed:"2020",rating:"7.5/10"},
+  {id:2,title:"Atomic Habits — James Clear",topic:"Self Improvement",completed:"2021",rating:"9/10"},
+  {id:3,title:"The Richest Man in Babylon — G.S. Clason",topic:"Personal Finance",completed:"2021",rating:"7.5/10"},
+  {id:4,title:"Sapiens — Yuval Noah Harari",topic:"Human History",completed:"Aug 2024",rating:"9/10"},
+  {id:5,title:"How an Economy Grows & Why It Crashes — Schiff",topic:"Economics",completed:"Aug 2024",rating:"9/10"},
+  {id:6,title:"Why We Sleep — Matthew Walker",topic:"Health",completed:"Sep 2024",rating:"7.5/10"},
+  {id:7,title:"The Almanac of Naval Ravikant — Jorgensen",topic:"Self Improvement",completed:"Oct 2025",rating:"7.5/10"},
+  {id:8,title:"Buy Back Your Time — Dan Martell",topic:"Business",completed:"Nov 2024",rating:"7.5/10"},
+  {id:9,title:"The E-Myth Revisited — M.E. Gerber",topic:"Business",completed:"Feb 2025",rating:"9/10"},
+  {id:10,title:"The Slight Edge — Jeff Olson",topic:"Self Improvement",completed:"Mar 2025",rating:"9/10"},
+  {id:11,title:"7 Strategies for Wealth & Happiness — Rohn",topic:"Self Improvement",completed:"2025",rating:"8.5/10"},
+  {id:12,title:"$100M Offers — Alex Hormozi",topic:"Business",completed:"Apr 2025",rating:"9/10"},
+  {id:13,title:"$100M Leads — Alex Hormozi",topic:"Business",completed:"",rating:""},
+  {id:14,title:"Think and Grow Rich — Napoleon Hill",topic:"",completed:"",rating:""},
+  {id:15,title:"Thinking, Fast and Slow — Daniel Kahneman",topic:"",completed:"",rating:""},
+];
+const INIT_COURSES = [
+  {id:1,title:"Quantum Growth — Sabri Suby",topic:"Marketing & Sales",completed:"Feb 2024",rating:"9/10"},
+];
+
+// ── Storage ─────────────────────────────────────────────────────────────────
+
+function load() {
+  try {
+    const raw = localStorage.getItem("goals-tracker-2026");
+    return raw ? JSON.parse(raw) : blank();
+  } catch { return blank(); }
+}
+function save(d) {
+  try { localStorage.setItem("goals-tracker-2026", JSON.stringify(d)); } catch(e) { console.error(e); }
+}
+function blank() {
+  return { daily:{}, health:{}, wealth:{}, education:{ books:JSON.parse(JSON.stringify(INIT_BOOKS)), courses:JSON.parse(JSON.stringify(INIT_COURSES)) }};
+}
+
+let DB = load();
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+const fmtKey  = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const mKey    = (y,m) => `${y}-${String(m+1).padStart(2,"0")}`;
+const sameDay = (a,b) => fmtKey(a) === fmtKey(b);
+const scoreColor = p => p>=80?"#16a34a":p>=60?"#ca8a04":p>=30?"#ea580c":p>0?"#dc2626":"#d1d5db";
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+function dayScore(date) {
+  const d = DB.daily[fmtKey(date)] || {};
+  return HABITS.filter(h => d[h.id]).length;
+}
+function getVal(date, hid) { return !!(DB.daily[fmtKey(date)]?.[hid]); }
+function toggleHabit(dateKey, hid) {
+  if (!DB.daily[dateKey]) DB.daily[dateKey] = {};
+  DB.daily[dateKey][hid] = !DB.daily[dateKey][hid];
+  save(DB);
+}
+
+const defaultWealth = () => ({salary:1943,partner:0,sales:0,additional:150,rent:1550,loan:150,overdraft:25,phone:12,gym:40,other:20,notes:""});
+function getWealth(y,m) { return DB.wealth[mKey(y,m)] || defaultWealth(); }
+function saveWealth(y,m,w) { DB.wealth[mKey(y,m)] = w; save(DB); }
+
+const emptyWeek = () => ({steps:"",gym:"",weight:"",cals:""});
+const defaultHealth = () => ({weeks:[emptyWeek(),emptyWeek(),emptyWeek(),emptyWeek()],stepGoal:8000});
+function getHealth(y,m) { return DB.health[mKey(y,m)] || defaultHealth(); }
+function saveHealth(y,m,h) { DB.health[mKey(y,m)] = h; save(DB); }
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+let activeTab = "today";
+const now = new Date();
+let calY = now.getFullYear(), calM = now.getMonth();
+let selDay = new Date(now);
+let hwY = now.getFullYear(), hwM = now.getMonth();
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+
+document.querySelectorAll(".nav-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    activeTab = btn.dataset.tab;
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    document.getElementById(activeTab).classList.add("active");
+    render();
+  });
+});
+
+// ── Render header ────────────────────────────────────────────────────────────
+
+function renderHeader() {
+  const sc = dayScore(now);
+  const pct = Math.round(sc / HABITS.length * 100);
+  const col = scoreColor(pct);
+  document.getElementById("score-bar").style.width = pct + "%";
+  document.getElementById("score-bar").style.background = col;
+  document.getElementById("score-text").textContent = sc + "/" + HABITS.length;
+  document.getElementById("score-text").style.color = col;
+}
+
+// ── TODAY ─────────────────────────────────────────────────────────────────────
+
+function renderToday() {
+  const sc = dayScore(now);
+  const pct = Math.round(sc / HABITS.length * 100);
+  const col = scoreColor(pct);
+  const dateStr = now.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+  let html = `<div class="wrap">
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:20px;font-weight:700;color:#111827;margin-bottom:2px">${esc(dateStr)}</div>
+        <div style="font-size:13px;color:#6b7280">Daily Habit Check-In</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:44px;font-weight:800;color:${col};line-height:1">${sc}</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:6px">of ${HABITS.length} complete</div>
+        <div class="prog-wrap" style="width:140px"><div class="prog-bar" style="width:${pct}%;background:${col}"></div></div>
+        <div style="font-size:11px;color:#6b7280;margin-top:4px">${pct}%</div>
+      </div>
+    </div>`;
+
+  for (const cat of CATS) {
+    const catH = HABITS.filter(h => h.cat === cat);
+    const done = catH.filter(h => getVal(now, h.id)).length;
+    const doneCol = done === catH.length ? "#16a34a" : "#6b7280";
+    html += `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="section-h" style="margin-bottom:0">${esc(cat)}</div>
+        <div style="font-size:12px;color:${doneCol};font-weight:600">${done}/${catH.length}</div>
+      </div>`;
+    for (const h of catH) {
+      const chk = getVal(now, h.id);
+      html += `<div class="habit-row${chk?" checked":""}" data-key="${esc(fmtKey(now))}" data-hid="${esc(h.id)}">
+        <div class="habit-box${chk?" checked":" "}">
+          ${chk?`<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:""}
+        </div>
+        <span style="font-size:15px">${h.icon}</span>
+        <span class="habit-label${chk?" checked":""}">${esc(h.label)}</span>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  html += `</div>`;
+  document.getElementById("today").innerHTML = html;
+  bindHabitRows();
+}
+
+function bindHabitRows() {
+  document.querySelectorAll(".habit-row[data-key]").forEach(row => {
+    row.addEventListener("click", () => {
+      const key = row.dataset.key;
+      const hid = row.dataset.hid;
+      // Check if future
+      const [y,m,d] = key.split("-").map(Number);
+      const rowDate = new Date(y, m-1, d);
+      const cutoff = new Date(now); cutoff.setHours(23,59,59);
+      if (rowDate > cutoff) return;
+      toggleHabit(key, hid);
+      render();
+    });
+  });
+}
+
+// ── CALENDAR ──────────────────────────────────────────────────────────────────
+
+function renderCalendar() {
+  const daysInMonth = new Date(calY, calM+1, 0).getDate();
+  const startPad = new Date(calY, calM, 1).getDay();
+  const cutoff = new Date(now); cutoff.setHours(23,59,59);
+
+  let html = `<div class="wrap">
+    <div class="card">
+      <div class="month-nav">
+        <button class="btn" id="cal-prev">&#8249;</button>
+        <div class="month-title">${MONTHS[calM]} ${calY}</div>
+        <button class="btn" id="cal-next">&#8250;</button>
+      </div>
+      <div class="cal-grid" style="margin-bottom:4px">
+        ${DAYS_S.map(d=>`<div class="cal-day-hdr">${d}</div>`).join("")}
+      </div>
+      <div class="cal-grid">
+        ${Array(startPad).fill('<div></div>').join("")}
+        ${Array(daysInMonth).fill(0).map((_,i)=>{
+          const d = new Date(calY, calM, i+1);
+          const fut = d > cutoff;
+          const isT = sameDay(d, now);
+          const isS = sameDay(d, selDay);
+          const sc = dayScore(d);
+          const pct = Math.round(sc/HABITS.length*100);
+          const cls = ["cal-day", isS?"selected":"", isT?"today":"", fut?"future":""].filter(Boolean).join(" ");
+          return `<div class="${cls}" data-date="${fmtKey(d)}">
+            <div class="cal-day-num">${i+1}</div>
+            <div class="cal-day-bar" style="background:${!fut&&sc>0?scoreColor(pct):"#e5e7eb"}"></div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`;
+
+  // Selected day habits
+  const selSc = dayScore(selDay);
+  const selPct = Math.round(selSc/HABITS.length*100);
+  const isFutSel = selDay > cutoff;
+  const selDateStr = selDay.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  html += `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-weight:600;color:#111827;font-size:15px">${esc(selDateStr)}</div>
+        <div style="font-size:13px;color:#6b7280">${selSc}/${HABITS.length} habits · ${selPct}%</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="prog-wrap" style="width:80px"><div class="prog-bar" style="width:${selPct}%;background:${scoreColor(selPct)}"></div></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">`;
+
+  for (const h of HABITS) {
+    const chk = getVal(selDay, h.id);
+    html += `<div class="habit-row${chk?" checked":""}" style="${isFutSel?"opacity:.4;cursor:not-allowed":""}" data-key="${esc(fmtKey(selDay))}" data-hid="${esc(h.id)}">
+      <div class="habit-box${chk?" checked":""}">
+        ${chk?`<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><polyline points="2,5.5 4.5,8.5 9,2.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:""}
+      </div>
+      <span style="font-size:13px">${h.icon}</span>
+      <span class="habit-label${chk?" checked":""}" style="font-size:12px">${esc(h.label)}</span>
+    </div>`;
+  }
+  html += `</div></div></div>`;
+  document.getElementById("calendar").innerHTML = html;
+
+  document.getElementById("cal-prev").onclick = () => { if(calM===0){calY--;calM=11;}else calM--; renderCalendar(); };
+  document.getElementById("cal-next").onclick = () => { if(calM===11){calY++;calM=0;}else calM++; renderCalendar(); };
+
+  document.querySelectorAll(".cal-day[data-date]").forEach(el => {
+    el.addEventListener("click", () => {
+      if (el.classList.contains("future")) return;
+      const [y,m,d] = el.dataset.date.split("-").map(Number);
+      selDay = new Date(y, m-1, d);
+      renderCalendar();
+    });
+  });
+  bindHabitRows();
+}
+
+// ── HEALTH ────────────────────────────────────────────────────────────────────
+
+function renderHealth() {
+  const h = getHealth(hwY, hwM);
+  const filled = h.weeks.filter(w=>w.steps!=="");
+  const avgSteps = filled.length ? Math.round(filled.reduce((s,w)=>s+(+w.steps||0),0)/filled.length) : 0;
+  const filledC = h.weeks.filter(w=>w.cals!=="");
+  const avgCals = filledC.length ? Math.round(filledC.reduce((s,w)=>s+(+w.cals||0),0)/filledC.length) : 0;
+  const goal = h.stepGoal || 8000;
+
+  let html = `<div class="wrap">
+    <div class="card">
+      <div class="month-nav">
+        <button class="btn" id="hw-prev">&#8249;</button>
+        <div class="month-title">${MONTHS[hwM]} ${hwY}</div>
+        <button class="btn" id="hw-next">&#8250;</button>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="section-h">Avg Daily Steps</div>
+        <div class="stat-val" style="color:${avgSteps>=goal?"#16a34a":"#dc2626"}">${avgSteps?avgSteps.toLocaleString():"—"}</div>
+        <div class="stat-lbl">Goal: ${goal.toLocaleString()}</div>
+      </div>
+      <div class="stat-card">
+        <div class="section-h">Avg Daily Cals</div>
+        <div class="stat-val" style="color:${avgCals>0&&avgCals<=2500?"#16a34a":"#dc2626"}">${avgCals?avgCals.toLocaleString():"—"}</div>
+        <div class="stat-lbl">Target: 2,200</div>
+      </div>
+      <div class="stat-card">
+        <div class="section-h">Step Goal/Day</div>
+        <input class="inp" id="step-goal-inp" type="number" value="${goal}" style="text-align:center;font-weight:700;font-size:20px;color:#2563eb;background:transparent;border:none;width:100%;outline:none"/>
+        <div class="stat-lbl">Tap to change</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-h">Weekly Data — ${MONTHS[hwM]} ${hwY}</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Week</th><th>Avg Steps</th><th>Gym Sessions</th><th>Weight (kg)</th><th>Avg Cals</th></tr></thead>
+          <tbody>
+            ${h.weeks.map((w,i)=>`<tr>
+              <td style="color:#6b7280;font-weight:600">Week ${i+1}</td>
+              <td><input class="num-inp week-inp" data-wi="${i}" data-f="steps" type="number" value="${esc(w.steps)}" placeholder="—"/></td>
+              <td><input class="num-inp week-inp" data-wi="${i}" data-f="gym" type="number" value="${esc(w.gym)}" placeholder="—"/></td>
+              <td><input class="num-inp week-inp" data-wi="${i}" data-f="weight" type="text" value="${esc(w.weight)}" placeholder="—"/></td>
+              <td><input class="num-inp week-inp" data-wi="${i}" data-f="cals" type="number" value="${esc(w.cals)}" placeholder="—"/></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-h">Macro Targets</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center">
+        ${[{l:"Daily Calories",v:"2,200"},{l:"Protein",v:"165g"},{l:"Carbs",v:"220g"},{l:"Fats",v:"73g"}].map(m=>`
+          <div><div style="font-size:22px;font-weight:700;color:#2563eb">${m.v}</div><div style="font-size:11px;color:#6b7280;margin-top:3px">${m.l}</div></div>
+        `).join("")}
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById("health").innerHTML = html;
+
+  document.getElementById("hw-prev").onclick = () => { if(hwM===0){hwY--;hwM=11;}else hwM--; renderHealth(); };
+  document.getElementById("hw-next").onclick = () => { if(hwM===11){hwY++;hwM=0;}else hwM++; renderHealth(); };
+
+  document.getElementById("step-goal-inp").addEventListener("change", e => {
+    const h2 = getHealth(hwY, hwM);
+    h2.stepGoal = +e.target.value;
+    saveHealth(hwY, hwM, h2);
+    renderHealth();
+  });
+
+  document.querySelectorAll(".week-inp").forEach(inp => {
+    inp.addEventListener("change", () => {
+      const h2 = getHealth(hwY, hwM);
+      const wi = +inp.dataset.wi;
+      const f = inp.dataset.f;
+      h2.weeks[wi][f] = inp.value;
+      saveHealth(hwY, hwM, h2);
+    });
+  });
+}
+
+// ── WEALTH ────────────────────────────────────────────────────────────────────
+
+function renderWealth() {
+  const w = getWealth(hwY, hwM);
+  const totalIn  = [+w.salary,+w.partner,+w.sales,+w.additional].reduce((a,b)=>a+b,0);
+  const totalOut = [+w.rent,+w.loan,+w.overdraft,+w.phone,+w.gym,+w.other].reduce((a,b)=>a+b,0);
+  const spare = totalIn - totalOut;
+
+  const incomeFields = [
+    {label:"Monthly salary",field:"salary"},
+    {label:"Partner clients",field:"partner"},
+    {label:"Outbound sales",field:"sales"},
+    {label:"Additional (sent to you)",field:"additional"},
+  ];
+  const expFields = [
+    {label:"Rent (4th)",field:"rent"},
+    {label:"Abound Loan (2nd)",field:"loan"},
+    {label:"Santander Overdraft (1st)",field:"overdraft"},
+    {label:"Phone bill (5th)",field:"phone"},
+    {label:"Gym membership (1st)",field:"gym"},
+    {label:"Other (Amazon, Spotify etc.)",field:"other"},
+  ];
+
+  let html = `<div class="wrap">
+    <div class="card">
+      <div class="month-nav">
+        <button class="btn" id="hw-prev">&#8249;</button>
+        <div class="month-title">${MONTHS[hwM]} ${hwY}</div>
+        <button class="btn" id="hw-next">&#8250;</button>
+      </div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="section-h">Total Income</div><div class="stat-val" style="color:#16a34a">£${totalIn.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="section-h">Total Expenses</div><div class="stat-val" style="color:#dc2626">£${totalOut.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="section-h">Spare Income</div><div class="stat-val" style="color:${spare>=0?"#2563eb":"#dc2626"}">£${spare.toLocaleString()}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" class="wealth-grid">
+      <div class="card">
+        <div class="section-h">Income</div>
+        ${incomeFields.map(f=>`<div class="wealth-row">
+          <div class="wealth-lbl">${esc(f.label)}</div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="color:#6b7280">£</span>
+            <input class="num-inp wealth-inp" data-field="${esc(f.field)}" data-section="income" type="number" value="${esc(w[f.field])}"/>
+          </div>
+        </div>`).join("")}
+        <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb">
+          <span style="font-weight:700;color:#111827">Total</span>
+          <span style="font-weight:700;color:#16a34a">£${totalIn.toLocaleString()}</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-h">Expenses</div>
+        ${expFields.map(f=>`<div class="wealth-row">
+          <div class="wealth-lbl">${esc(f.label)}</div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="color:#6b7280">£</span>
+            <input class="num-inp wealth-inp" data-field="${esc(f.field)}" type="number" value="${esc(w[f.field])}"/>
+          </div>
+        </div>`).join("")}
+        <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb">
+          <span style="font-weight:700;color:#111827">Total</span>
+          <span style="font-weight:700;color:#dc2626">£${totalOut.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-h">Notes</div>
+      <textarea class="inp" id="wealth-notes" style="min-height:70px;resize:vertical" placeholder="Any notes for this month…">${esc(w.notes||"")}</textarea>
+    </div>
+  </div>`;
+
+  document.getElementById("wealth").innerHTML = html;
+
+  document.getElementById("hw-prev").onclick = () => { if(hwM===0){hwY--;hwM=11;}else hwM--; renderWealth(); };
+  document.getElementById("hw-next").onclick = () => { if(hwM===11){hwY++;hwM=0;}else hwM++; renderWealth(); };
+
+  document.querySelectorAll(".wealth-inp").forEach(inp => {
+    inp.addEventListener("change", () => {
+      const w2 = getWealth(hwY, hwM);
+      w2[inp.dataset.field] = +inp.value;
+      saveWealth(hwY, hwM, w2);
+      renderWealth();
+    });
+  });
+  document.getElementById("wealth-notes").addEventListener("change", e => {
+    const w2 = getWealth(hwY, hwM);
+    w2.notes = e.target.value;
+    saveWealth(hwY, hwM, w2);
+  });
+}
+
+// ── EDUCATION ─────────────────────────────────────────────────────────────────
+
+function renderEducation() {
+  const edu = DB.education;
+  const booksRead = edu.books.filter(b=>b.completed).length;
+  const coursesRead = edu.courses.filter(c=>c.completed).length;
+
+  let html = `<div class="wrap">
+    <div class="stat-grid">
+      <div class="stat-card"><div style="font-size:26px;margin-bottom:4px">📚</div><div class="stat-val">${booksRead}</div><div class="stat-lbl">Books Read</div></div>
+      <div class="stat-card"><div style="font-size:26px;margin-bottom:4px">🎓</div><div class="stat-val">${coursesRead}</div><div class="stat-lbl">Courses Done</div></div>
+      <div class="stat-card"><div style="font-size:26px;margin-bottom:4px">📖</div><div class="stat-val">${edu.books.length}</div><div class="stat-lbl">Total Books</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="section-h" style="margin-bottom:0">Books</div>
+        <button class="btn btn-primary" id="show-add-book">+ Add Book</button>
+      </div>
+      <div id="add-book-form" style="display:none" class="add-form">
+        <input class="inp" id="nb-title" placeholder="Title"/>
+        <input class="inp" id="nb-topic" placeholder="Topic"/>
+        <input class="inp" id="nb-completed" placeholder="Date Completed"/>
+        <input class="inp" id="nb-rating" placeholder="Rating (e.g. 8/10)"/>
+        <div style="grid-column:1/-1;display:flex;gap:8px">
+          <button class="btn btn-primary" id="save-book">Save</button>
+          <button class="btn" id="cancel-book">Cancel</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>#</th><th>Title</th><th>Topic</th><th>Completed</th><th>Rating</th><th></th></tr></thead>
+          <tbody>
+            ${edu.books.map((b,i)=>`<tr>
+              <td style="color:#9ca3af;font-weight:700;font-size:12px">${i+1}</td>
+              <td style="color:${b.completed?"#111827":"#9ca3af"};font-style:${b.completed?"normal":"italic"};min-width:160px">${esc(b.title)}</td>
+              <td><input class="inp book-field" data-bid="${b.id}" data-f="topic" style="width:110px;font-size:12px" value="${esc(b.topic)}" placeholder="Topic"/></td>
+              <td><input class="inp book-field" data-bid="${b.id}" data-f="completed" style="width:90px;font-size:12px" value="${esc(b.completed)}" placeholder="Date"/></td>
+              <td><input class="inp book-field" data-bid="${b.id}" data-f="rating" style="width:65px;font-size:12px" value="${esc(b.rating)}" placeholder="—"/></td>
+              <td><button class="btn btn-danger del-book" data-bid="${b.id}">✕</button></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="section-h" style="margin-bottom:0">Courses</div>
+        <button class="btn btn-primary" id="show-add-course">+ Add Course</button>
+      </div>
+      <div id="add-course-form" style="display:none" class="add-form">
+        <input class="inp" id="nc-title" placeholder="Course Title"/>
+        <input class="inp" id="nc-topic" placeholder="Topic"/>
+        <input class="inp" id="nc-completed" placeholder="Date Completed"/>
+        <input class="inp" id="nc-rating" placeholder="Rating (e.g. 8/10)"/>
+        <div style="grid-column:1/-1;display:flex;gap:8px">
+          <button class="btn btn-primary" id="save-course">Save</button>
+          <button class="btn" id="cancel-course">Cancel</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Title</th><th>Topic</th><th>Completed</th><th>Rating</th><th></th></tr></thead>
+        <tbody>
+          ${edu.courses.map((c,i)=>`<tr>
+            <td style="color:#9ca3af;font-weight:700;font-size:12px">${i+1}</td>
+            <td style="color:#111827;min-width:160px">${esc(c.title)}</td>
+            <td style="color:#6b7280">${esc(c.topic)}</td>
+            <td style="color:#6b7280">${esc(c.completed)||"—"}</td>
+            <td style="color:#2563eb;font-weight:600">${esc(c.rating)||"—"}</td>
+            <td><button class="btn btn-danger del-course" data-cid="${c.id}">✕</button></td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+
+  document.getElementById("education").innerHTML = html;
+
+  // Book form
+  document.getElementById("show-add-book").onclick = () => { document.getElementById("add-book-form").style.display = "grid"; };
+  document.getElementById("cancel-book").onclick = () => { document.getElementById("add-book-form").style.display = "none"; };
+  document.getElementById("save-book").onclick = () => {
+    const title = document.getElementById("nb-title").value.trim();
+    if (!title) return;
+    DB.education.books.push({id:Date.now(), title, topic:document.getElementById("nb-topic").value, completed:document.getElementById("nb-completed").value, rating:document.getElementById("nb-rating").value});
+    save(DB); renderEducation();
+  };
+
+  // Course form
+  document.getElementById("show-add-course").onclick = () => { document.getElementById("add-course-form").style.display = "grid"; };
+  document.getElementById("cancel-course").onclick = () => { document.getElementById("add-course-form").style.display = "none"; };
+  document.getElementById("save-course").onclick = () => {
+    const title = document.getElementById("nc-title").value.trim();
+    if (!title) return;
+    DB.education.courses.push({id:Date.now(), title, topic:document.getElementById("nc-topic").value, completed:document.getElementById("nc-completed").value, rating:document.getElementById("nc-rating").value});
+    save(DB); renderEducation();
+  };
+
+  // Book inline edit
+  document.querySelectorAll(".book-field").forEach(inp => {
+    inp.addEventListener("change", () => {
+      const bid = +inp.dataset.bid;
+      const f = inp.dataset.f;
+      const bk = DB.education.books.find(b=>b.id===bid);
+      if (bk) { bk[f] = inp.value; save(DB); renderEducation(); }
+    });
+  });
+
+  // Delete book
+  document.querySelectorAll(".del-book").forEach(btn => {
+    btn.onclick = () => {
+      if (!confirm("Delete this book?")) return;
+      DB.education.books = DB.education.books.filter(b=>b.id!==+btn.dataset.bid);
+      save(DB); renderEducation();
+    };
+  });
+
+  // Delete course
+  document.querySelectorAll(".del-course").forEach(btn => {
+    btn.onclick = () => {
+      if (!confirm("Delete this course?")) return;
+      DB.education.courses = DB.education.courses.filter(c=>c.id!==+btn.dataset.cid);
+      save(DB); renderEducation();
+    };
+  });
+}
+
+// ── Master render ────────────────────────────────────────────────────────────
+
+function render() {
+  renderHeader();
+  if (activeTab === "today")     renderToday();
+  if (activeTab === "calendar")  renderCalendar();
+  if (activeTab === "health")    renderHealth();
+  if (activeTab === "wealth")    renderWealth();
+  if (activeTab === "education") renderEducation();
+}
+
+render();
+</script>
+</body>
+</html>
