@@ -157,10 +157,6 @@ a{color:var(--blue-text)}
 .cal-day.has-data{cursor:pointer}
 .cal-day .tooltip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--surface);border:0.5px solid var(--border2);border-radius:6px;padding:3px 7px;font-size:10px;white-space:nowrap;z-index:10;pointer-events:none;display:none}
 .cal-day:hover .tooltip{display:block}
-.yr-btns{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
-.yr-btn{background:var(--bg2);border:0.5px solid var(--border);color:var(--text2);border-radius:20px;padding:4px 12px;font-size:12px;font-family:inherit;transition:all .15s}
-.yr-btn:hover{border-color:var(--border2);color:var(--text)}
-.yr-btn.on{background:var(--text);color:var(--bg);border-color:var(--text)}
 .cal-legend{display:flex;gap:14px;margin-top:10px;font-size:11px;color:var(--text2);flex-wrap:wrap}
 .cal-legend span{display:flex;align-items:center;gap:5px}
 .pip{width:10px;height:10px;border-radius:2px}
@@ -906,7 +902,6 @@ function rProgress(){
 
   // calendar
   const calHtml=buildCalendar();
-  const yearBtns=buildYearBtns();
 
   document.getElementById('panel-progress').innerHTML=`
   <div class="card">
@@ -941,7 +936,6 @@ function rProgress(){
   </div>
   <div class="card" id="cal-card">
     <div class="card-hdr"><div class="card-label">Monthly calendar</div></div>
-    <div class="yr-btns">${yearBtns}</div>
     ${calHtml}
     <div class="cal-legend">
       <span><span class="pip" style="background:var(--bg2);border:0.5px solid var(--border)"></span>0%</span>
@@ -952,12 +946,7 @@ function rProgress(){
     </div>
   </div>`;
 }
-function buildYearBtns(){
-  // show minYear up to 5 years ahead of today, always including calYear
-  const endYear=Math.max(today.getFullYear()+5, calYear);
-  return Array.from({length:endYear-minYear+1},(_,i)=>minYear+i)
-    .map(y=>`<button class="yr-btn${calYear===y?' on':''}" onclick="jumpYear(${y})">${y}</button>`).join('');
-}
+
 function buildCalendar(){
   const mn2=['January','February','March','April','May','June','July','August','September','October','November','December'];
   const isFirst=(calYear===minYear&&calMonth===0);
@@ -983,11 +972,9 @@ function buildCalendar(){
   return html+'</div>';
 }
 function calNav(dir){calMonth+=dir;if(calMonth<0){calMonth=11;calYear--;}if(calMonth>11){calMonth=0;calYear++;}calYear=Math.max(minYear,calYear);rCalOnly();}
-function jumpYear(y){calYear=y;rCalOnly();}
 function rCalOnly(){
   const card=document.getElementById('cal-card');if(!card)return;
-  const yearBtns=buildYearBtns();
-  card.innerHTML=`<div class="card-hdr"><div class="card-label">Monthly calendar</div></div><div class="yr-btns">${yearBtns}</div>${buildCalendar()}<div class="cal-legend"><span><span class="pip" style="background:var(--bg2);border:0.5px solid var(--border)"></span>0%</span><span><span class="pip" style="background:#FCA5A5"></span>1–39%</span><span><span class="pip" style="background:#FCD34D"></span>40–69%</span><span><span class="pip" style="background:#6EE7B7"></span>70–99%</span><span><span class="pip" style="background:#34D399"></span>100%</span></div>`;
+  card.innerHTML=`<div class="card-hdr"><div class="card-label">Monthly calendar</div></div>${buildCalendar()}<div class="cal-legend"><span><span class="pip" style="background:var(--bg2);border:0.5px solid var(--border)"></span>0%</span><span><span class="pip" style="background:#FCA5A5"></span>1–39%</span><span><span class="pip" style="background:#FCD34D"></span>40–69%</span><span><span class="pip" style="background:#6EE7B7"></span>70–99%</span><span><span class="pip" style="background:#34D399"></span>100%</span></div>`;
 }
 </script>
 <script>
