@@ -328,7 +328,7 @@ a{color:var(--blue-text)}
 //  CONFIGURATION — paste your Google Cloud Client ID below
 // ═══════════════════════════════════════════════════════════════
 const DEFAULT_CLIENT_ID = ''; // leave blank — user pastes it on login screen
-const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.readonly';
 const SHEET_TITLE = 'HabitFlow';
 
 // ═══════════════════════════════════════════════════════════════
@@ -383,7 +383,7 @@ let finChart='net', editingFinItem=null, finViewOffset=0;
 let activeSection='books';
 let filterStatus='All', filterCat='All', filterType='All', searchQ='';
 let calYear=today.getFullYear(), calMonth=today.getMonth();
-const minYear=today.getFullYear(), maxYear=today.getFullYear()+5;
+const minYear=2020;
 let activePanel='habits';
 let sheetId=null;
 let accessToken=null;
@@ -497,12 +497,25 @@ const SHEET_TABS={
 
 async function findOrCreateSheet(){
   try{
+    // Search Drive for an existing habit.flow Data sheet first
+    const searchResp=await fetch(
+      "https://www.googleapis.com/drive/v3/files?q=name%3D'habit.flow%20Data'%20and%20mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse&fields=files(id%2Cname)",
+      {headers:{Authorization:'Bearer '+accessToken}}
+    );
+    const searchResult=await searchResp.json();
+    if(searchResult.files&&searchResult.files.length>0){
+      // Reuse the existing sheet
+      console.log('Reusing existing sheet:',searchResult.files[0].id);
+      return searchResult.files[0].id;
+    }
+    // No existing sheet — create a fresh one
     const r=await gapi.client.sheets.spreadsheets.create({resource:{
       properties:{title:'habit.flow Data'},
       sheets:Object.values(SHEET_TABS).map(t=>({properties:{title:t}}))
     }});
     const id=r.result.spreadsheetId;
     await initSheetHeaders(id);
+    console.log('Created new sheet:',id);
     return id;
   }catch(e){setSyncStatus('error','Sheet creation failed');console.error(e);return null;}
 }
@@ -893,7 +906,7 @@ function rProgress(){
 
   // calendar
   const calHtml=buildCalendar();
-  const yearBtns=Array.from({length:maxYear-minYear+1},(_,i)=>minYear+i).map(y=>`<button class="yr-btn${calYear===y?' on':''}" onclick="jumpYear(${y})">${y}</button>`).join('');
+  const yearBtns=buildYearBtns();
 
   document.getElementById('panel-progress').innerHTML=`
   <div class="card">
@@ -939,14 +952,19 @@ function rProgress(){
     </div>
   </div>`;
 }
+function buildYearBtns(){
+  // show minYear up to 5 years ahead of today, always including calYear
+  const endYear=Math.max(today.getFullYear()+5, calYear);
+  return Array.from({length:endYear-minYear+1},(_,i)=>minYear+i)
+    .map(y=>`<button class="yr-btn${calYear===y?' on':''}" onclick="jumpYear(${y})">${y}</button>`).join('');
+}
 function buildCalendar(){
   const mn2=['January','February','March','April','May','June','July','August','September','October','November','December'];
   const isFirst=(calYear===minYear&&calMonth===0);
-  const isLast=(calYear===maxYear&&calMonth===11);
   let html=`<div class="cal-nav">
     <button class="btn btn-sm" onclick="calNav(-1)"${isFirst?' disabled':''}>‹</button>
     <span class="cal-nav-title">${mn2[calMonth]} ${calYear}</span>
-    <button class="btn btn-sm" onclick="calNav(1)"${isLast?' disabled':''}>›</button>
+    <button class="btn btn-sm" onclick="calNav(1)">›</button>
   </div><div class="cal-grid">`;
   ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(d=>html+=`<div class="cal-dh">${d}</div>`);
   const startDow=(new Date(calYear,calMonth,1).getDay()+6)%7;
@@ -964,11 +982,11 @@ function buildCalendar(){
   }
   return html+'</div>';
 }
-function calNav(dir){calMonth+=dir;if(calMonth<0){calMonth=11;calYear--;}if(calMonth>11){calMonth=0;calYear++;}calYear=Math.max(minYear,Math.min(maxYear,calYear));rCalOnly();}
+function calNav(dir){calMonth+=dir;if(calMonth<0){calMonth=11;calYear--;}if(calMonth>11){calMonth=0;calYear++;}calYear=Math.max(minYear,calYear);rCalOnly();}
 function jumpYear(y){calYear=y;rCalOnly();}
 function rCalOnly(){
   const card=document.getElementById('cal-card');if(!card)return;
-  const yearBtns=Array.from({length:maxYear-minYear+1},(_,i)=>minYear+i).map(y=>`<button class="yr-btn${calYear===y?' on':''}" onclick="jumpYear(${y})">${y}</button>`).join('');
+  const yearBtns=buildYearBtns();
   card.innerHTML=`<div class="card-hdr"><div class="card-label">Monthly calendar</div></div><div class="yr-btns">${yearBtns}</div>${buildCalendar()}<div class="cal-legend"><span><span class="pip" style="background:var(--bg2);border:0.5px solid var(--border)"></span>0%</span><span><span class="pip" style="background:#FCA5A5"></span>1–39%</span><span><span class="pip" style="background:#FCD34D"></span>40–69%</span><span><span class="pip" style="background:#6EE7B7"></span>70–99%</span><span><span class="pip" style="background:#34D399"></span>100%</span></div>`;
 }
 </script>
