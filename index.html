@@ -318,9 +318,47 @@ select.inp{
 .habit-row.editing{border-color:var(--border2);background:var(--surface)}
 .emoji-btn{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;cursor:pointer;transition:background .15s,border-color .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .emoji-btn:hover{background:var(--bg3)}
-.emoji-picker{display:none;flex-wrap:wrap;gap:4px;padding:8px;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius);margin-bottom:6px;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.emoji-picker{
+  display:none;
+  flex-direction:column;
+  gap:0;
+  padding:0;
+  background:var(--surface);
+  border:0.5px solid var(--border2);
+  border-radius:var(--radius);
+  margin-bottom:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,.12);
+  overflow:hidden;
+  max-height:280px;
+}
 .emoji-picker.open{display:flex}
-.ep-em{background:none;border:0.5px solid transparent;border-radius:6px;width:32px;height:32px;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.emoji-picker-search{
+  padding:8px 10px;
+  border-bottom:0.5px solid var(--border);
+  flex-shrink:0;
+}
+.emoji-picker-search input{
+  width:100%;background:var(--bg2);border:0.5px solid var(--border2);
+  border-radius:var(--radius-sm);padding:5px 10px;font-size:13px;
+  color:var(--text);outline:none;font-family:inherit;
+  -webkit-appearance:none;appearance:none;
+}
+.emoji-picker-search input:focus{border-color:var(--blue);}
+.emoji-picker-scroll{
+  overflow-y:auto;
+  flex:1;
+  padding:8px;
+  -webkit-overflow-scrolling:touch;
+}
+.emoji-picker-scroll::-webkit-scrollbar{width:4px}
+.emoji-picker-scroll::-webkit-scrollbar-track{background:transparent}
+.emoji-picker-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.ep-cat-label{
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--text3);padding:6px 2px 4px;display:block;user-select:none;
+}
+.ep-cat-grid{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:4px}
+.ep-em{background:none;border:0.5px solid transparent;border-radius:6px;width:32px;height:32px;font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;flex-shrink:0}
 .ep-em:hover{background:var(--bg2);border-color:var(--border)}
 .ep-em:active{background:var(--bg3)}
 
@@ -678,7 +716,21 @@ const FREQS={
   monthly:{label:'Once per month',short:'1x/month'},
   twice_month:{label:'Twice per month',short:'2x/month'},
 };
-const EMOJIS=['🏃','🧠','💬','🎨','💰','📚','🧘','🏋️','🎯','💧','🌿','✍️','🎵','🍎','😴','🚴','🧹','📝','🌅','❤️','🦷','🥗','🛏️','📵','💳','📊','🏡','🌱','🙏','🤝','👨‍👩‍👧','📱','🔕','⏰','🎓','🌙','🕯️','🧺','💻','🏦'];
+const EMOJI_CATS={
+  'Fitness & Body':['🏃','🚴','🏋️','🧘','🤸','🏊','⛹️','🚶','🧗','🤾','🏇','🛹','🤺','🥊','🏄','🎿','🛷','🧜','🤽','🏌️','🚵','🪂','🤼','🧖','💪','🦵','🫁','🫀','🩻','⚖️'],
+  'Food & Health':['🍎','🥗','💧','🥦','🥑','🍳','🫖','☕','🍵','🥤','🧃','🍇','🫐','🍓','🥕','🥜','🧴','💊','🩺','🦷','🛁','🚿','🧼','🌡️','🩹','💉','🧬','🫙','🥛','🍋'],
+  'Mind & Focus':['🧠','📵','🔕','⏰','🎯','🧩','♟️','🔬','📖','💭','🤔','🧘','🌬️','😶','🪷','🫧','🔇','📴','🕰️','⏱️','🪬','🫶','🫠','🌊','🧲','🔭','💡','🕯️','🪔','🌀'],
+  'Learning & Growth':['📚','✍️','📝','🎓','📊','💻','🖥️','⌨️','🖊️','📐','📏','🗂️','📋','📌','🔖','📰','🗞️','📓','📔','📒','📕','📗','📘','📙','🖋️','🖌️','🎨','🎭','🎬','🎙️'],
+  'Relationships':['🤝','❤️','👨‍👩‍👧','💬','📞','💌','🥂','🎁','🎂','👥','🫂','💑','👪','💏','🤗','😊','🥰','💞','🫶','🙌','👋','🎉','🎊','🪅','💐','🌹','🌺','🌸','🫁','🪸'],
+  'Home & Life':['🏡','🧹','🧺','🛏️','🪴','🔧','🛒','🗑️','🚗','✈️','🚌','🚶','🧳','🗓️','🗒️','🪣','🧽','🫧','🧱','🏗️','🪟','🚪','🪑','🛋️','🪞','🛁','🚿','🧹','🪣','💡'],
+  'Finance & Work':['💳','📊','💰','💵','🏦','📈','📉','💼','🏢','🤝','🖨️','📠','🔐','🗄️','🪙','💸','🧾','📑','🏧','🪪','⚙️','🔑','🔒','📊','🛡️','🏅','🎖️','🏆','🥇','💎'],
+  'Spiritual & Reflective':['🙏','🕯️','🌅','🌙','⭐','✨','🌟','🌈','🪷','🫧','☮️','🕊️','🌿','🍃','🌱','🌲','🌴','🌊','🏔️','🌌','🌠','🪐','☀️','🌤️','🌙','🌛','🌜','💫','🌺','🪬'],
+  'Activities & Hobbies':['🎵','🎸','🎹','🎺','🎻','🥁','🎷','🎤','🎧','🎮','🕹️','🎲','🃏','♟️','🎯','🎳','🎱','🏓','🏸','⛸️','🎭','🖼️','📸','📷','🎬','✏️','🖊️','🪡','🧵','🪢'],
+  'Nature & Animals':['🌿','🌱','🌲','🌳','🌴','🍀','🌻','🌸','🌺','🌹','🌼','🌷','🍁','🍂','🐕','🐈','🐠','🦋','🐦','🦅','🐢','🌈','🐝','🌊','🏔️','🌙','☀️','🌤️','🌧️','⛅'],
+  'Symbols & Other':['⭐','🔥','💥','⚡','🎯','🏅','🎖️','🏆','🥇','🥈','🥉','💯','✅','☑️','🔔','📣','📢','💬','💭','❓','❗','🔵','🟢','🟡','🟠','🔴','🟣','⚫','⚪','🎀'],
+};
+// Flat array for backwards compatibility (default emoji grid still available)
+const EMOJIS=Object.values(EMOJI_CATS).flat();
 const DEF_EMOJI={financial:'💳',wellbeing:'💧',relationships:'🤝',learning:'📚',home:'🏡',digital:'📵',spiritual:'🙏',other:'⭐'};
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const CUR='£';
@@ -717,11 +769,14 @@ let nid=1000, vOff=0, editingId=null, pickerFor=null;
 let logWeekOffset=0, targetWeekOffset=0, activeChart='calories';
 let finChart='net', editingFinItem=null, finViewOffset=0;
 let activeSection='books';
-let filterStatus='All', filterCat='All', filterType='All', searchQ='';
+let filterStatus='All', filterCat='All', filterType='All', searchQ='', filterYear='All';
 let calYear=today.getFullYear(), calMonth=today.getMonth();
 const minYear=2020;
 let activePanel='habits';
 let progressRange=30;       // 30 / 60 / 90 day trend
+let progressMonthOffset=0;  // 0 = current month, -1 = last month, etc.
+let annualSummaryYear=new Date().getFullYear(); // year shown in annual summary
+let weightRange=90;         // days shown in weight chart: 30/90/180/365
 let expandedNoteKey=null;   // 'YYYY-MM-DD:habitId' for open note fields
 let colorPickerFor=null;    // habitId for open color picker
 let sheetId=null;
@@ -796,9 +851,9 @@ function handleSignOut(){
   // Reset UI state
   nid=1000;vOff=0;editingId=null;pickerFor=null;expandedNoteKey=null;colorPickerFor=null;
   logWeekOffset=0;targetWeekOffset=0;activeChart='calories';
-  finChart='net';editingFinItem=null;finViewOffset=0;
-  activeSection='books';filterStatus='All';filterCat='All';filterType='All';searchQ='';
-  calYear=today.getFullYear();calMonth=today.getMonth();progressRange=30;
+  finChart='net';editingFinItem=null;finViewOffset=0;annualSummaryYear=new Date().getFullYear();
+  activeSection='books';filterStatus='All';filterCat='All';filterType='All';filterYear='All';searchQ='';
+  calYear=today.getFullYear();calMonth=today.getMonth();progressRange=30;progressMonthOffset=0;weightRange=90;
   document.getElementById('app').classList.remove('visible');
   document.getElementById('login-screen').style.display='flex';
 }
@@ -1138,7 +1193,38 @@ function savingsRate(md){const inc=totalIncome(md);return inc?Math.round(netPos(
 // ═══════════════════════════════════════════════════════════════
 //  HABITS TAB
 // ═══════════════════════════════════════════════════════════════
+let emojiSearch='';   // search string for the emoji picker
+
 function habitColor(h){return h.color||(HABIT_CATS[h.cat]||HABIT_CATS.other).color;}
+
+function buildEmojiPicker(habitId){
+  const q=emojiSearch.trim().toLowerCase();
+  let rows='';
+  Object.entries(EMOJI_CATS).forEach(([label,emojis])=>{
+    const filtered=q?emojis.filter(e=>e.includes(q)||(label.toLowerCase().includes(q))):emojis;
+    if(!filtered.length)return;
+    rows+=`<span class="ep-cat-label">${label}</span><div class="ep-cat-grid">`;
+    rows+=filtered.map(e=>`<button class="ep-em" onclick="setEmoji('${habitId}','${e}')">${e}</button>`).join('');
+    rows+=`</div>`;
+  });
+  if(!rows)rows=`<div style="padding:12px;text-align:center;font-size:13px;color:var(--text3)">No emojis match "${emojiSearch}"</div>`;
+  return`<div class="emoji-picker-search"><input type="search" placeholder="Search emojis…" value="${esc(emojiSearch)}" oninput="emojiSearch=this.value;document.getElementById('ep-scroll-${habitId}').innerHTML=buildEmojiPickerContent('${habitId}')" autocomplete="off" autocorrect="off" spellcheck="false"/></div><div class="emoji-picker-scroll" id="ep-scroll-${habitId}">${rows}</div>`;
+}
+
+function buildEmojiPickerContent(habitId){
+  const q=emojiSearch.trim().toLowerCase();
+  let rows='';
+  Object.entries(EMOJI_CATS).forEach(([label,emojis])=>{
+    const filtered=q?emojis.filter(e=>label.toLowerCase().includes(q)):emojis;
+    if(!filtered.length)return;
+    rows+=`<span class="ep-cat-label">${label}</span><div class="ep-cat-grid">`;
+    rows+=filtered.map(e=>`<button class="ep-em" onclick="setEmoji('${habitId}','${e}')">${e}</button>`).join('');
+    rows+=`</div>`;
+  });
+  if(!rows)rows=`<div style="padding:12px;text-align:center;font-size:13px;color:var(--text3)">No emojis match</div>`;
+  return rows;
+}
+
 function rHabits(){
   const panel=document.getElementById('panel-habits');
   let html=`<div class="card"><div class="add-row">
@@ -1175,11 +1261,15 @@ function rHabits(){
         html+=`<button class="icon-btn del" onclick="removeHabit('${h.id}')">✕</button>`;
       }
       html+=`</div>`;
-      html+=`<div class="emoji-picker${pickerFor===h.id?' open':''}">${EMOJIS.map(e=>`<button class="ep-em" onclick="setEmoji('${h.id}','${e}')">${e}</button>`).join('')}</div>`;
+      if(pickerFor===h.id){
+        html+=`<div class="emoji-picker open">${buildEmojiPicker(h.id)}</div>`;
+      }
     });
     html+=`</div>`;
   });
   panel.innerHTML=html;
+  // Re-focus emoji search if picker is open so keyboard stays up
+  if(pickerFor){const s=document.querySelector('.emoji-picker-search input');if(s&&emojiSearch){s.focus();s.setSelectionRange(s.value.length,s.value.length);}}
 }
 function addHabit(){
   const i=document.getElementById('hInp'),c=document.getElementById('hCat'),f=document.getElementById('hFreq');
@@ -1205,9 +1295,15 @@ function saveHabit(id){
   const h=STATE.habits.find(x=>x.id===id);if(h){h.name=nm;h.cat=nc.value;h.freq=nf.value;}
   editingId=null;scheduleSave();rHabits();
 }
-function cancelEdit(){editingId=null;pickerFor=null;colorPickerFor=null;if(activePanel==='habits')rHabits();else if(activePanel==='learning')rLearning();}
-function togglePicker(id){pickerFor=pickerFor===id?null:id;rHabits();}
-function setEmoji(id,em){const h=STATE.habits.find(x=>x.id===id);if(h)h.emoji=em;pickerFor=null;scheduleSave();rHabits();}
+function cancelEdit(){editingId=null;pickerFor=null;colorPickerFor=null;emojiSearch='';if(activePanel==='habits')rHabits();else if(activePanel==='learning')rLearning();}
+function togglePicker(id){
+  if(pickerFor===id){pickerFor=null;emojiSearch='';}
+  else{pickerFor=id;emojiSearch='';}
+  rHabits();
+  // Focus search input after open
+  if(pickerFor){setTimeout(()=>{const s=document.querySelector('.emoji-picker-search input');if(s)s.focus();},60);}
+}
+function setEmoji(id,em){const h=STATE.habits.find(x=>x.id===id);if(h)h.emoji=em;pickerFor=null;emojiSearch='';scheduleSave();rHabits();}
 function setHabitColor(id,color){const h=STATE.habits.find(x=>x.id===id);if(h)h.color=color||null;scheduleSave();rHabits();}
 function togglePauseHabit(id){const h=STATE.habits.find(x=>x.id===id);if(h)h.paused=!h.paused;scheduleSave();rHabits();}
 function moveHabit(id,dir){
@@ -1334,10 +1430,12 @@ function rProgress(){
   const dh=dailyHabits();
   const r=34,circ=2*Math.PI*r,dash=circ*(todayPct/100),gap=circ-dash;
 
-  // monthly completions
-  const mn=today.getMonth(),yr=today.getFullYear();
+  // monthly completions — uses progressMonthOffset so user can navigate back
+  const compDate=new Date(today.getFullYear(),today.getMonth()+progressMonthOffset,1);
+  const mn=compDate.getMonth(),yr=compDate.getFullYear();
   const daysInMonth=new Date(yr,mn+1,0).getDate();
-  const daysElapsed=Math.min(today.getDate(),daysInMonth);
+  const isCurrentMonth=(yr===today.getFullYear()&&mn===today.getMonth());
+  const daysElapsed=isCurrentMonth?Math.min(today.getDate(),daysInMonth):daysInMonth;
   function expectedInMonth(h){if(h.freq==='daily')return daysElapsed;if(h.freq==='weekly')return Math.floor(daysElapsed/7);if(h.freq==='twice_week')return Math.floor(daysElapsed/7)*2+(daysElapsed%7>=3?1:0);if(h.freq==='monthly')return 1;if(h.freq==='twice_month')return daysElapsed>=15?2:1;return daysElapsed;}
   function countInMonth(id){let count=0;for(let d=1;d<=daysElapsed;d++){const dt=new Date(yr,mn,d);const k=dk(dt);if((STATE.completions[k]||[]).includes(id))count++;}return count;}
 
@@ -1382,6 +1480,14 @@ function rProgress(){
       </span>
     </div>`;
   }).join('');
+
+  const weekSun=new Date(monDate);weekSun.setDate(monDate.getDate()+6);
+  const fmt2=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  const weekLabel=monDate.getTime()===today.getTime()
+    ? `${fmt2(monDate)} — day 1 of 7`
+    : weekDays.length<7
+      ? `${fmt2(monDate)} – ${fmt2(weekSun)} (${weekDays.length} of 7 days elapsed)`
+      : `${fmt2(monDate)} – ${fmt2(weekSun)}`;
 
   // ── Heatmap ────────────────────────────────────────────────
   const hmDays=progressRange;
@@ -1445,7 +1551,7 @@ function rProgress(){
   </div>
 
   <div class="card">
-    <div class="card-hdr"><div class="card-label">Weekly review — ${monDate.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} to ${today.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div>
+    <div class="card-hdr"><div class="card-label">Weekly review — ${weekLabel}</div></div>
     ${weeklyReviewRows||'<div class="empty-state">No active habits</div>'}
   </div>
 
@@ -1476,7 +1582,13 @@ function rProgress(){
   </div>
 
   <div class="card" id="monthly-comp-card">
-    <div class="card-hdr"><div class="card-label">Monthly completions — ${MONTHS[mn]} ${yr}</div></div>
+    <div class="card-hdr">
+      <div class="card-label">Monthly completions — ${MONTHS[mn]} ${yr}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="btn btn-sm" onclick="changeProgressMonth(-1)">‹</button>
+        <button class="btn btn-sm" onclick="changeProgressMonth(1)"${progressMonthOffset===0?' disabled':''}>›</button>
+      </div>
+    </div>
     ${monthCompHtml}
   </div>
   <div class="card" id="cal-card">
@@ -1505,6 +1617,7 @@ function computeCurrentStreak(habitId){
   return streak;
 }
 function setProgressRange(n){progressRange=n;rProgress();}
+function changeProgressMonth(dir){progressMonthOffset=Math.min(0,progressMonthOffset+dir);rProgress();}
 
 function buildCalendar(){
   const mn2=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -1700,20 +1813,31 @@ function rHealth(){
       </div>
     </div>
     ${(()=>{
-      const entries=Object.entries(STATE.weightLog).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);
-      if(!entries.length)return'<div class="empty-state">No weight entries yet</div>';
+      const allEntries=Object.entries(STATE.weightLog).sort((a,b)=>a[0].localeCompare(b[0]));
+      if(!allEntries.length)return'<div class="empty-state">No weight entries yet</div>';
       const hcm=STATE.heightCm||170;const hm=hcm/100;
-      const vals=entries.map(([d,w])=>w);
-      const W=460,H=100,P={t:8,r:8,b:20,l:36};const pw=W-P.l-P.r,ph=H-P.t-P.b;
+      // Filter by selected range
+      const cutoff=new Date(today);cutoff.setDate(today.getDate()-(weightRange-1));
+      const cutoffKey=dk(cutoff);
+      const rangeEntries=weightRange===365?allEntries:allEntries.filter(([d])=>d>=cutoffKey);
+      const displayEntries=rangeEntries.length?rangeEntries:allEntries.slice(-Math.min(30,allEntries.length));
+      const rangeTabs=[{d:30,l:'1m'},{d:90,l:'3m'},{d:180,l:'6m'},{d:365,l:'1y'}];
+      const tabHtml=`<div class="chart-tabs" style="margin-bottom:10px">${rangeTabs.map(t=>`<button class="chart-tab${weightRange===t.d?' on':''}" onclick="weightRange=${t.d};rHealth()">${t.l}</button>`).join('')}</div>`;
+      const vals=displayEntries.map(([d,w])=>w);
+      const W=460,H=110,P={t:8,r:8,b:20,l:40};const pw=W-P.l-P.r,ph=H-P.t-P.b;
       const mn2=Math.min(...vals)*0.97,mx2=Math.max(...vals)*1.03+0.01;
-      const revE=[...entries].reverse();
-      const Xw=i=>P.l+i*(pw/(revE.length-1||1));const Yw=v=>P.t+ph-(v-mn2)/(mx2-mn2)*ph;
-      let wPath='';revE.forEach(([d,w],i)=>{wPath+=`${i===0?'M':'L'}${Xw(i).toFixed(1)},${Yw(w).toFixed(1)} `;});
-      const wDots=revE.map(([d,w],i)=>`<circle cx="${Xw(i)}" cy="${Yw(w)}" r="3" fill="#3B82F6" stroke="var(--surface)" stroke-width="1.5"/>`).join('');
-      const wLabels=revE.filter((_,i)=>i%(Math.ceil(revE.length/5))===0).map(([d,w],i)=>{const ri=revE.findIndex(e=>e[0]===d);return`<text x="${Xw(ri)}" y="${H-2}" text-anchor="middle" font-size="9" fill="var(--text3)">${new Date(d.split('-').join('/')).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</text>`;}).join('');
-      const chart=`<svg class="svg-chart" viewBox="0 0 ${W} ${H}" style="margin-bottom:10px"><line x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${P.t+ph}" stroke="var(--border)" stroke-width="0.5"/><line x1="${P.l}" y1="${P.t+ph}" x2="${P.l+pw}" y2="${P.t+ph}" stroke="var(--border)" stroke-width="0.5"/><text x="${P.l-4}" y="${Yw(mn2)+4}" text-anchor="end" font-size="9" fill="var(--text3)">${mn2.toFixed(1)}</text><text x="${P.l-4}" y="${Yw(mx2)+4}" text-anchor="end" font-size="9" fill="var(--text3)">${mx2.toFixed(1)}</text>${wLabels}<path d="${wPath}" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${wDots}</svg>`;
-      const rows=entries.slice(0,5).map(([d,w])=>{const bmi=w/(hm*hm);const bmiLabel=bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';const bmiColor=bmi<18.5?'var(--blue-text)':bmi<25?'var(--green-text)':bmi<30?'var(--amber-text)':'var(--red-text)';return`<div class="weight-entry-row"><span class="weight-date">${new Date(d.split('-').join('/')).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span><span class="weight-val">${w} kg</span><span class="weight-bmi">BMI <strong style="color:${bmiColor}">${bmi.toFixed(1)}</strong> <span style="color:${bmiColor}">${bmiLabel}</span></span><button class="icon-btn del" onclick="deleteWeight('${d}')">✕</button></div>`;}).join('');
-      return chart+rows;
+      const Xw=i=>P.l+i*(pw/(displayEntries.length-1||1));const Yw=v=>P.t+ph-(v-mn2)/(mx2-mn2)*ph;
+      let wPath='';displayEntries.forEach(([d,w],i)=>{wPath+=`${i===0?'M':'L'}${Xw(i).toFixed(1)},${Yw(w).toFixed(1)} `;});
+      const wDots=displayEntries.map(([d,w],i)=>`<circle cx="${Xw(i)}" cy="${Yw(w)}" r="3" fill="#3B82F6" stroke="var(--surface)" stroke-width="1.5"/>`).join('');
+      const step=Math.max(1,Math.ceil(displayEntries.length/6));
+      const wLabels=displayEntries.filter((_,i)=>i%step===0||i===displayEntries.length-1).map(([d],i)=>{const ri=displayEntries.findIndex(e=>e[0]===d);return`<text x="${Xw(ri)}" y="${H-2}" text-anchor="middle" font-size="9" fill="var(--text3)">${new Date(d.split('-').join('/')).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</text>`;}).join('');
+      // y axis labels
+      const yMid=((mn2+mx2)/2);
+      const yLabels=`<text x="${P.l-4}" y="${Yw(mx2)+4}" text-anchor="end" font-size="9" fill="var(--text3)">${mx2.toFixed(1)}</text><text x="${P.l-4}" y="${Yw(yMid)+4}" text-anchor="end" font-size="9" fill="var(--text3)">${yMid.toFixed(1)}</text><text x="${P.l-4}" y="${Yw(mn2)+4}" text-anchor="end" font-size="9" fill="var(--text3)">${mn2.toFixed(1)}</text>`;
+      const chart=`<svg class="svg-chart" viewBox="0 0 ${W} ${H}" style="margin-bottom:10px"><line x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${P.t+ph}" stroke="var(--border)" stroke-width="0.5"/><line x1="${P.l}" y1="${P.t+ph}" x2="${P.l+pw}" y2="${P.t+ph}" stroke="var(--border)" stroke-width="0.5"/>${yLabels}${wLabels}<path d="${wPath}" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${wDots}</svg>`;
+      // Table: most recent 5 entries
+      const recentRows=[...allEntries].reverse().slice(0,5).map(([d,w])=>{const bmi=w/(hm*hm);const bmiLabel=bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';const bmiColor=bmi<18.5?'var(--blue-text)':bmi<25?'var(--green-text)':bmi<30?'var(--amber-text)':'var(--red-text)';return`<div class="weight-entry-row"><span class="weight-date">${new Date(d.split('-').join('/')).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span><span class="weight-val">${w} kg</span><span class="weight-bmi">BMI <strong style="color:${bmiColor}">${bmi.toFixed(1)}</strong> <span style="color:${bmiColor}">${bmiLabel}</span></span><button class="icon-btn del" onclick="deleteWeight('${d}')">✕</button></div>`;}).join('');
+      return tabHtml+chart+recentRows;
     })()}
   </div>`;
 }
@@ -1916,10 +2040,14 @@ function rFinance(){
     </div>
   </div>
   ${(()=>{
-    const yr=new Date().getFullYear();
+    const yr=annualSummaryYear;
+    const minFinYear=Math.min(...Object.keys(STATE.monthData).map(k=>parseInt(k.slice(0,4))).filter(Boolean),yr);
     const yearMonths=[];for(let m=0;m<12;m++){const k=`${yr}-${String(m+1).padStart(2,'0')}`;yearMonths.push({k,m});}
     const hasData=yearMonths.some(({k})=>STATE.monthData[k]);
-    if(!hasData)return'';
+    const hasPastData=Object.keys(STATE.monthData).some(k=>parseInt(k.slice(0,4))<yr||(parseInt(k.slice(0,4))===yr&&yearMonths.some(({k:mk})=>STATE.monthData[mk])));
+    // Always show the card if there's any finance data at all
+    const anyData=Object.keys(STATE.monthData).length>0;
+    if(!anyData)return'';
     let totInc=0,totExp=0,bestNet=-Infinity,worstNet=Infinity,bestMo='',worstMo='';
     let monthRows='';
     yearMonths.forEach(({k,m})=>{
@@ -1932,7 +2060,17 @@ function rFinance(){
       monthRows+=`<div class="total-row"><span style="color:var(--text2)">${MONTHS[m]}</span><span style="display:flex;gap:16px"><span style="color:var(--green-text);font-size:12px">${fmt(mInc)}</span><span style="color:var(--red-text);font-size:12px">${fmt(mExp)}</span><span class="tv" style="color:${col};min-width:70px;text-align:right">${mNet>=0?'+':'−'}${fmt(mNet)}</span></span></div>`;
     });
     const avgNet=totInc-totExp;
-    return`<div class="card"><div class="card-hdr"><div class="card-label">Annual summary — ${yr}</div></div>
+    const noDataMsg=`<div class="empty-state">No data recorded for ${yr}</div>`;
+    return`<div class="card">
+      <div class="card-hdr">
+        <div class="card-label">Annual summary</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="btn btn-sm" onclick="annualSummaryYear--;rFinance()">‹</button>
+          <span style="font-size:13px;font-weight:600;min-width:38px;text-align:center">${yr}</span>
+          <button class="btn btn-sm" onclick="annualSummaryYear++;rFinance()"${yr>=new Date().getFullYear()?' disabled':''}>›</button>
+        </div>
+      </div>
+      ${hasData?`
       <div class="stat-grid" style="margin-bottom:12px">
         <div class="stat-box"><div class="stat-n" style="color:var(--green-text)">${fmt(totInc)}</div><div class="stat-l">Total income</div></div>
         <div class="stat-box"><div class="stat-n" style="color:var(--red-text)">${fmt(totExp)}</div><div class="stat-l">Total expenses</div></div>
@@ -1944,6 +2082,7 @@ function rFinance(){
       ${monthRows}
       <div class="divider" style="margin:8px 0"></div>
       <button class="btn btn-sm" style="margin-top:4px" onclick="exportFinanceCSV(${yr})">⬇ Export ${yr} as CSV</button>
+      `:noDataMsg}
     </div>`;
   })()}`;
 }
@@ -2074,6 +2213,12 @@ function rLearning(refocusSearch){
   const catOpts2=['All',...catList].map(c=>`<option${c===filterCat?' selected':''}>${c}</option>`).join('');
   const statusChoices=isBooks?['All','Wishlist','Not started','In progress','Completed']:['All','Not started','In progress','Completed'];
   const statusOpts=statusChoices.map(s=>`<option${s===filterStatus?' selected':''}>${s}</option>`).join('');
+  // Build year options from completed items
+  const completedYears=[...new Set([
+    ...STATE.books.filter(b=>b.dateCompleted).map(b=>b.dateCompleted.slice(0,4)),
+    ...STATE.courses.filter(c=>c.dateCompleted).map(c=>c.dateCompleted.slice(0,4))
+  ])].filter(y=>y).sort().reverse();
+  const yearOpts=['All',...completedYears].map(y=>`<option${y===filterYear?' selected':''}>${y}</option>`).join('');
 
   function starsHtml(id,rating,section){let h='<div class="stars">';for(let i=1;i<=10;i++)h+=`<span class="star${i<=rating?' on':''}" onclick="setRating('${section}','${id}',${i})">★</span>`;return h+`<span class="rating-num">${rating>0?rating+'/10':'Not rated'}</span></div>`;}
   function statusBadge(s){if(s==='Completed')return`<span class="badge badge-green">✓ Completed</span>`;if(s==='In progress')return`<span class="badge badge-amber">▶ In progress</span>`;if(s==='Wishlist')return`<span class="badge badge-purple">♡ Wishlist</span>`;return`<span class="badge badge-outline">◎ Not started</span>`;}
@@ -2119,7 +2264,7 @@ function rLearning(refocusSearch){
         <div class="inp-grp"><label>Status</label><select class="inp" id="e-status"><option${c.status==='Not started'?' selected':''}>Not started</option><option${c.status==='In progress'?' selected':''}>In progress</option><option${c.status==='Completed'?' selected':''}>Completed</option></select></div>
         <div class="inp-grp"><label>Date completed</label><input class="inp" type="date" id="e-date" value="${c.dateCompleted||''}"/></div>
         <div class="inp-grp"><label>Rating (1–10)</label><input class="inp" type="number" min="0" max="10" id="e-rating" value="${c.rating||''}"/></div>
-        <div class="inp-grp grid-full"><label>Course URL</label><input class="inp" id="e-url" value="${esc(c.url||'')}" placeholder="https://..."/></div>
+        <div class="inp-grp grid-full"><label>Course URL <span style="color:var(--text3);font-weight:400">(optional)</span></label><input class="inp" id="e-url" value="${esc(c.url||'')}" placeholder="https://..."/></div>
         <div class="inp-grp grid-full"><label>Notes / key takeaways</label><textarea class="inp" id="e-notes" rows="3" style="resize:vertical">${esc(c.notes||'')}</textarea></div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:10px"><label style="font-size:12px;color:var(--text2)">Would redo?</label><select class="inp inp-sm" id="e-reread"><option value="1"${c.reread?' selected':''}>Yes</option><option value="0"${!c.reread?' selected':''}>No</option></select></div>
@@ -2165,6 +2310,7 @@ function rLearning(refocusSearch){
     <div class="filter-row">
       <input class="inp" id="learning-search" placeholder="Search…" value="${searchQ}" oninput="searchQ=this.value;rLearning(true)"/>
       <select class="inp" onchange="filterStatus=this.value;rLearning()">${statusOpts}</select>
+      <select class="inp" onchange="filterYear=this.value;rLearning()"><option value="All"${filterYear==='All'?' selected':''}>All years</option>${completedYears.map(y=>`<option${y===filterYear?' selected':''}>${y}</option>`).join('')}</select>
       <select class="inp" onchange="filterCat=this.value;rLearning()">${catOpts2}</select>
       ${isBooks?`<select class="inp" onchange="filterType=this.value;rLearning()"><option${filterType==='All'?' selected':''}>All</option><option${filterType==='Fiction'?' selected':''}>Fiction</option><option${filterType==='Non-fiction'?' selected':''}>Non-fiction</option></select>`:''}
     </div>
@@ -2188,16 +2334,16 @@ function rLearning(refocusSearch){
         <div class="inp-grp"><label>Category</label><select class="inp" id="nc-cat">${COURSE_CATS.map(c=>`<option>${c}</option>`).join('')}</select></div>
         <div class="inp-grp"><label>Status</label><select class="inp" id="nc-status"><option>Not started</option><option>In progress</option><option>Completed</option></select></div>
         <div class="inp-grp"><label>Date completed</label><input class="inp" type="date" id="nc-date"/></div>
-        <div class="inp-grp grid-full"><label>Course URL</label><input class="inp" id="nc-url" placeholder="https://..."/></div>
+        <div class="inp-grp grid-full"><label>Course URL <span style="color:var(--text3);font-weight:400">(optional)</span></label><input class="inp" id="nc-url" placeholder="https://..."/></div>
       </div>
       <button class="btn" style="margin-top:8px" onclick="addCourse()">+ Add course</button>
     </div>`}
   </div>`;
   if(refocusSearch){setTimeout(()=>{const el=document.getElementById('learning-search');if(el){el.focus();const len=el.value.length;el.setSelectionRange(len,len);}},0);}
 }
-function filteredBooks(){return STATE.books.filter(b=>{if(filterStatus!=='All'&&b.status!==filterStatus)return false;if(filterCat!=='All'&&b.category!==filterCat)return false;if(filterType!=='All'&&b.type!==filterType)return false;if(searchQ&&!b.title.toLowerCase().includes(searchQ.toLowerCase())&&!(b.author||'').toLowerCase().includes(searchQ.toLowerCase()))return false;return true;})}
-function filteredCourses(){return STATE.courses.filter(c=>{if(filterStatus!=='All'&&c.status!==filterStatus)return false;if(filterCat!=='All'&&c.category!==filterCat)return false;if(searchQ&&!c.title.toLowerCase().includes(searchQ.toLowerCase()))return false;return true;})}
-function switchSection(s){activeSection=s;filterCat='All';filterStatus='All';filterType='All';searchQ='';editingId=null;rLearning();}
+function filteredBooks(){return STATE.books.filter(b=>{if(filterStatus!=='All'&&b.status!==filterStatus)return false;if(filterCat!=='All'&&b.category!==filterCat)return false;if(filterType!=='All'&&b.type!==filterType)return false;if(filterYear!=='All'&&(!b.dateCompleted||!b.dateCompleted.startsWith(filterYear)))return false;if(searchQ&&!b.title.toLowerCase().includes(searchQ.toLowerCase())&&!(b.author||'').toLowerCase().includes(searchQ.toLowerCase()))return false;return true;})}
+function filteredCourses(){return STATE.courses.filter(c=>{if(filterStatus!=='All'&&c.status!==filterStatus)return false;if(filterCat!=='All'&&c.category!==filterCat)return false;if(filterYear!=='All'&&(!c.dateCompleted||!c.dateCompleted.startsWith(filterYear)))return false;if(searchQ&&!c.title.toLowerCase().includes(searchQ.toLowerCase()))return false;return true;})}
+function switchSection(s){activeSection=s;filterCat='All';filterStatus='All';filterType='All';filterYear='All';searchQ='';editingId=null;rLearning();}
 function saveBook(id){const b=STATE.books.find(x=>x.id===id);if(!b)return;b.title=document.getElementById('e-title').value.trim()||b.title;b.author=document.getElementById('e-author').value.trim();b.pages=parseInt(document.getElementById('e-pages').value)||0;b.category=document.getElementById('e-cat').value;b.type=document.getElementById('e-type').value;b.status=document.getElementById('e-status').value;b.dateCompleted=document.getElementById('e-date').value;b.rating=parseInt(document.getElementById('e-rating').value)||0;b.reread=document.getElementById('e-reread').value==='1';b.notes=document.getElementById('e-notes').value.trim();editingId=null;scheduleSave();rLearning();}
 function saveCourse(id){const c=STATE.courses.find(x=>x.id===id);if(!c)return;c.title=document.getElementById('e-title').value.trim()||c.title;c.provider=document.getElementById('e-provider').value.trim();c.category=document.getElementById('e-cat').value;c.status=document.getElementById('e-status').value;c.dateCompleted=document.getElementById('e-date').value;c.rating=parseInt(document.getElementById('e-rating').value)||0;c.url=document.getElementById('e-url').value.trim();c.reread=document.getElementById('e-reread').value==='1';c.notes=document.getElementById('e-notes').value.trim();editingId=null;scheduleSave();rLearning();}
 function addBook(){const title=document.getElementById('nb-title').value.trim();if(!title)return;STATE.books.push({id:'b'+(++nid),title,author:document.getElementById('nb-author').value.trim(),pages:parseInt(document.getElementById('nb-pages').value)||0,category:document.getElementById('nb-cat').value,type:document.getElementById('nb-type').value,status:document.getElementById('nb-status').value,rating:0,reread:false,notes:'',dateCompleted:document.getElementById('nb-date').value});scheduleSave();rLearning();}
